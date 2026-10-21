@@ -7,6 +7,7 @@
     ../../modules/profiles/development.nix
     ../../modules/profiles/virtualisation.nix
     ../../modules/profiles/rust.nix
+    ../../modules/profiles/moonlight.nix
   ];
 
   environment.variables.DIANE_LLM_URL = "http://teodor-gaming-nixos:8080/v1/chat/completions";
