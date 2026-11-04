@@ -4,6 +4,11 @@ return {
 		opts = {},
 	},
 
+
+	{
+		'Hoffs/omnisharp-extended-lsp.nvim'
+	},
+
 	{
 		'hrsh7th/nvim-cmp',
 		dependencies = {
