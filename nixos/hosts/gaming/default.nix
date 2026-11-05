@@ -11,6 +11,7 @@
     ../../modules/profiles/rust.nix
     ../../modules/profiles/tailnet-host.nix
     ../../modules/profiles/sunshine.nix
+    ../../modules/profiles/development.nix
   ];
 
   networking.hostName = "teodor-gaming-nixos";
