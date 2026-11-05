@@ -48,6 +48,7 @@
     mono
     steam-run
     vintagestory
+    deadlock-mod-manager
   ];
 
   services.hardware.openrgb.enable = true;
