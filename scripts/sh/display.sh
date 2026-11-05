@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # display.sh — monitor mode control for the gaming host. Replaces hdr.sh.
 #
-# Usage: display.sh [res|comp|desktop|cinema|status|reprobe]   (default: status)
+# Usage: display.sh [res|comp|desktop|cinema|film|status|reprobe]   (default: status)
 #
 #   res      toggle resolution: 1080p480 <-> 4K240  (run after flipping the OSD)
 #   comp     1920x1080@480, SDR 8-bit, VRR  — Deadlock / competitive
 #   desktop  3840x2160@240, SDR 10-bit, VRR — daily driver
-#   cinema   3840x2160@240, HDR 10-bit, VRR — E33 / film
+#   cinema   3840x2160@240, HDR 10-bit, VRR — HDR games (E33)
+#   film     3840x2160@240, HDR 10-bit, no VRR — video; VRR makes the OLED
+#            flicker in dark scenes, and 240 = 10×24 so film paces fine without it
 #   status   what's actually applied right now
 #   reprobe  force the kernel to re-read the monitor's EDID (needs root)
 #
@@ -64,6 +66,9 @@ DESKTOP_TAIL="auto,2,bitdepth,10,cm,srgb,vrr,0"
 
 CINEMA_RES="3840x2160@240"
 CINEMA_TAIL="auto,2,bitdepth,10,cm,hdr,sdrbrightness,1.2,sdrsaturation,0.98,vrr,2"
+
+FILM_RES="3840x2160@240"
+FILM_TAIL="auto,2,bitdepth,10,cm,hdr,sdrbrightness,1.2,sdrsaturation,0.98,vrr,0"
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -171,11 +176,11 @@ case "${1:-status}" in
 res)
     # flip to whichever side we're not on; preserve the HDR choice on the 4K side
     if [[ "$(active_wh)" == "1920x1080" ]]; then
-        if [[ "$(cat "$STATE" 2>/dev/null)" == "cinema" ]]; then
-            apply_stubborn cinema "$CINEMA_RES" "$CINEMA_TAIL"
-        else
-            apply_stubborn desktop "$DESKTOP_RES" "$DESKTOP_TAIL"
-        fi
+        case "$(cat "$STATE" 2>/dev/null)" in
+        cinema) apply_stubborn cinema "$CINEMA_RES" "$CINEMA_TAIL" ;;
+        film) apply_stubborn film "$FILM_RES" "$FILM_TAIL" ;;
+        *) apply_stubborn desktop "$DESKTOP_RES" "$DESKTOP_TAIL" ;;
+        esac
     else
         apply_stubborn comp "$COMP_RES" "$COMP_TAIL"
     fi
@@ -184,6 +189,7 @@ res)
 comp) apply_stubborn comp "$COMP_RES" "$COMP_TAIL" ;;
 desktop) apply_stubborn desktop "$DESKTOP_RES" "$DESKTOP_TAIL" ;;
 cinema) apply_stubborn cinema "$CINEMA_RES" "$CINEMA_TAIL" ;;
+film) apply_stubborn film "$FILM_RES" "$FILM_TAIL" ;;
 
 reprobe)
     do_reprobe && note "reprobed $MON — $(list_modes)" || die "reprobe failed (need root, or connector not found)"
@@ -206,7 +212,7 @@ status)
     ;;
 
 *)
-    echo "usage: display.sh [res|comp|desktop|cinema|status|reprobe]"
+    echo "usage: display.sh [res|comp|desktop|cinema|film|status|reprobe]"
     exit 2
     ;;
 esac
