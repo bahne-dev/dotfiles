@@ -15,15 +15,11 @@ vim.lsp.config.omnisharp = {
 	settings = {
 		RoslynExtensionsOptions = { EnableDecompilationSupport = true },
 	},
+	on_attach = function(_, bufnr)
+		vim.keymap.set("n", "gd", function()
+			require("omnisharp_extended").lsp_definition()
+		end, { buffer = bufnr, desc = "Go to definition" })
+	end,
 }
 
 vim.lsp.enable("omnisharp")
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "cs",
-  callback = function(args)
-    vim.keymap.set("n", "gd", function()
-      require("omnisharp_extended").lsp_definition()
-    end, { buffer = args.buf })
-  end,
-})
